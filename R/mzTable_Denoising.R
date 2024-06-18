@@ -25,6 +25,7 @@ get_mf_blankInfo <- function(
 						   invert = TRUE
 						   )
 
+                               # Get mf info in blanks
                                MF_BLANK_INFO <- apply(
 				                      X = DATA,
 					              MAR = 1,
@@ -60,7 +61,7 @@ get_mf_blankInfo <- function(
 								        # if both true then feature is blank-specific
 								        BLANK_FEATURES <- MISSING_IN_SAMPLES && DETECTED_IN_BLANK
 
-                                                                        # is blank median > experimental group median
+                                                                        # is blank median > sample median
                                                                         BLANK_GREATER <- BLANK_MED > SAMPLE_MED
   
                                                                         # experiment group median:blank median
@@ -100,7 +101,7 @@ get_mf_blankInfo <- function(
 #'
 #' For each mass feature, subtract median value in blanks from each sample.
 #' Uses BLANK_PATTERN to identify blank columns.
-#' Uses EXGRP_PATTERN to identify sample columns.
+#' Uses GRP_PATTERN to identify sample columns.
 #'
 #' @param DATA Dataframe, where rows are mass feaures and columns are samples
 #' @param BLANK_PATTERN Pattern to identify blank 
@@ -109,7 +110,7 @@ get_mf_blankInfo <- function(
 subtract_blank_median <- function(
 				  DATA,
 				  BLANK_PATTERN,
-				  EXPGRP_PATTERN
+				  GRP_PATTERN
 				  ){
                                     # Identify columns matching the blank pattern
                                     BLANK_COLS <- grep(
@@ -118,12 +119,12 @@ subtract_blank_median <- function(
 						       value = TRUE
 						       )
 
-                                    # Identify columns matching the experimental group pattern
-                                    EXPGRP_COLS <- grep(
-      				  		        pattern = EXPGRP_PATTERN,
-  						        x = colnames(DATA),
-						        value = TRUE
-						        )
+                                    # Identify columns matching the sample group pattern
+                                    GRP_COLS <- grep(
+      				  		     pattern = GRP_PATTERN,
+  						     x = colnames(DATA),
+						     value = TRUE
+						     )
 
                                     # Calculate the median for each blank column
                                     BLANK_MED <- apply(
@@ -139,9 +140,12 @@ subtract_blank_median <- function(
 				    DATA.DENOISE <- DATA
 
                                     # Subtract the median of the corresponding blank column from each exp group column
-				    for (COL in EXPGRP_COLS){
-                                                             DATA.DENOISE[,COL] <- DATA.DENOISE[,COL] - BLANK_MED
-                                                             }
+				    sapply(
+					   X = GRP_COLS,
+					   FUN = function(COL){
+                                                               DATA.DENOISE[,COL] <<- DATA.DENOISE[,COL] - BLANK_MED
+					                       }
+					   )
 
 				    # remove blank columns
                                     DATA.DENOISE <- DATA.DENOISE %>%
