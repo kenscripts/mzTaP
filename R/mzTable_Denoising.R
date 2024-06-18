@@ -1,6 +1,8 @@
 #' get_mf_blankInfo
 #'
-#' Get information on mass features from blanks
+#' Get information on mass features from blanks.
+#' Uses BLANK_PATTERN to identify blank columns.
+#' Unmatched columns are interpreted as sample columns.
 #'
 #' @param DATA Dataframe, where rows are mass feaures and columns are samples
 #' @param BLANK_PATTERN Pattern to identify blank samples
@@ -10,22 +12,12 @@ get_mf_blankInfo <- function(
 		 	     DATA,
 			     BLANK_PATTERN
 			     ){
-                               # Get max intensity for each feature
-                               MAX_INT <- apply(
-				                X = DATA,
-					        MAR = 1,
-					        FUN = function(X) max(
-								      X,
-						                      na.rm = TRUE
-								      )
-					        )
-
                                # Identify columns matching the blank pattern
                                BLANK_COLS <- grep(
       			                          pattern = BLANK_PATTERN,
 			                          x = colnames(DATA)
 						  )
-  
+
                                # Identify sample columns
                                SAMPLE_COLS <- grep(
       					           pattern = BLANK_PATTERN,
@@ -33,77 +25,86 @@ get_mf_blankInfo <- function(
 						   invert = TRUE
 						   )
 
-                               # Calculate the median for blank columns
-                               BLANK_MED <- apply(
-				                  X = DATA[, BLANK_COLS],
-						  MAR = 1,
-						  FUN = function(X) median(
-								           X,
-								           na.rm = TRUE
-      								           )
-						  )
+                               MF_BLANK_INFO <- apply(
+				                      X = DATA,
+					              MAR = 1,
+					              FUN = function(X){
+                                                                        # get max intensity for each feature
+                                                                        MAX_INT <- max(
+								                       X,
+						                                       na.rm = TRUE
+								                       )
 
-                               # Calculate sample median
-                               SAMPLE_MED <- apply(
-						   X = DATA[, SAMPLE_COLS],
-						   MAR = 1,
-						   FUN = function(X) median(
-						 		            X,
-  						 		            na.rm = TRUE
-								            )
-						   )
+                                                                        # calculate the median for blank columns
+                                                                        BLANK_MED <- median(
+								                            X[BLANK_COLS],
+								                            na.rm = TRUE
+      								                            )
 
-                               # Identify rows for features detected only in blanks
-                               BLANK_FEATURES <- apply(
-    				  		       X = DATA,
-						       MAR = 1,
-    						       FUN = function(X){
-								         # feature found in blanks
-								         DETECTED_IN_BLANK <- any(
-												  X[BLANK_COLS] > 0
-												  )
+                                                                        # calculate sample median
+                                                                        SAMPLE_MED <- median(
+						 		                             X[SAMPLE_COLS],
+  						 		                             na.rm = TRUE
+								                             )
 
-								         # feature missing in samples
-								         MISSING_IN_SAMPLES <- !any(
-												    X[SAMPLE_COLS] > 0
-												    )
+								        # feature found in blanks
+								        DETECTED_IN_BLANK <- any(
+											         X[BLANK_COLS] > 0
+											         )
 
-								         # if both true then feature is blank-specific
-								         BLANK_FEATURES <- MISSING_IN_SAMPLES && DETECTED_IN_BLANK
+								        # feature missing in samples
+								        MISSING_IN_SAMPLES <- !any(
+											           X[SAMPLE_COLS] > 0
+												   )
 
-								         return(BLANK_FEATURES)
-						                         }
-						       )
+								        # if both true then feature is blank-specific
+								        BLANK_FEATURES <- MISSING_IN_SAMPLES && DETECTED_IN_BLANK
 
-                               # is blank median > experimental group median
-                               BLANK_GREATER <- sapply(
-				 	               X = 1:nrow(DATA),
-						       FUN = function(I) BLANK_MED[I] > SAMPLE_MED[I]
-						       )
+                                                                        # is blank median > experimental group median
+                                                                        BLANK_GREATER <- BLANK_MED > SAMPLE_MED
   
-                               # experiment group median:blank median
-                               MED_RATIO <- sapply(
-					           X = 1:nrow(DATA),
-					           FUN = function(I) round(
-								           x = SAMPLE_MED[I]/BLANK_MED[I],
-								           digits = 2
-								           )
-						   )
+                                                                        # experiment group median:blank median
+                                                                        MED_RATIO <- round(
+								                           x = SAMPLE_MED/BLANK_MED,
+								                           digits = 2
+								                           )
 
-                               # Return a list with the median values and the comparison
+                                                                        # Return list with info
+                                                                        return(
+				                                               c(
+                                                                                 mf_max_intensity = MAX_INT,
+                                                                                 blank_median = BLANK_MED,
+                                                                                 sample_median = SAMPLE_MED,
+                                                                                 only_in_blank = BLANK_FEATURES,
+                                                                                 is_blank_greater = BLANK_GREATER,
+                                                                                 sampleMedian_to_blankMedian = MED_RATIO
+                                                                                 )
+                                                                               )
+                                                                        }
+					              ) %>%
+			                        # apply switches rows & columns
+			                        t()
+
+                               # output dataframe
+                               MF_BLANK_INFO_DF <- as.data.frame(MF_BLANK_INFO)
+                               MF_BLANK_INFO_DF$only_in_blank <- as.logical(MF_BLANK_INFO_DF$only_in_blank)
+                               MF_BLANK_INFO_DF$is_blank_greater <- as.logical(MF_BLANK_INFO_DF$is_blank_greater)
+
                                return(
-				      data.frame(
-                                                 mf_max_intensity = MAX_INT,
-                                                 blank_median = BLANK_MED,
-                                                 sample_median = SAMPLE_MED,
-                                                 only_in_blank = BLANK_FEATURES,
-                                                 is_blank_greater = BLANK_GREATER,
-                                                 sampleMedian_to_blankMedian = MED_RATIO
-                                                 )
+                                      MF_BLANK_INFO_DF
                                       )
                                }
 
 
+#' subtract_blank_median
+#'
+#' For each mass feature, subtract median value in blanks from each sample.
+#' Uses BLANK_PATTERN to identify blank columns.
+#' Uses EXGRP_PATTERN to identify sample columns.
+#'
+#' @param DATA Dataframe, where rows are mass feaures and columns are samples
+#' @param BLANK_PATTERN Pattern to identify blank 
+#' @return Dataframe with mass feature information from blanks
 #' @export
 subtract_blank_median <- function(
 				  DATA,
@@ -155,6 +156,16 @@ subtract_blank_median <- function(
                                     }
 
 
+#' get_mf_noiseInfo
+#'
+#' Determine the prevalence of each mass feature in sample groups.
+#' If mass feature is not conserved in any sample group (detected in all replicates of sample group) then it is considered noisy.
+#' If mass feature is missing in any sample group replicates then it's considered group noisy.
+#'
+#' @param DATA Dataframe, where rows are mass feaures and columns are samples
+#' @param GRP_PATTERNS Patterns to identify sample groups 
+#' @return Dataframe with information on mass feature noisiness.
+#' @export
 #' @export
 get_mf_noiseInfo <- function(
 		             DATA,
