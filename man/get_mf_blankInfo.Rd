@@ -15,7 +15,5 @@ get_mf_blankInfo(DATA, BLANK_PATTERN)
 Dataframe with mass feature information from blanks
 }
 \description{
-Get information on mass features from blanks.
-Uses BLANK_PATTERN to identify blank columns.
-Unmatched columns are interpreted as sample columns.
+Get information on mass features from blanks. Uses BLANK_PATTERN to identify blank columns. Unmatched columns are interpreted as sample columns.
 }

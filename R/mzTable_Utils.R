@@ -1,10 +1,11 @@
 #' build_group_vec
 #'
-#' generates vector of group names from sample names
+#' Generates vector of group names from sample names. Sample length as colnames(DATA).
 #'
-#' @param DATA Dataframe, with rows of features and columns of samples
+#' @param DATA Dataframe, where rows are mass feaures and columns are samples
 #' @param GRP_PATTERNS Patterns to identify group columns
 #' @return GRP_VEC Vector of group names
+#' @export
 build_group_vec  <- function(
   			     DATA,
 			     GRP_PATTERNS
@@ -20,14 +21,14 @@ build_group_vec  <- function(
                                # Add group names to appropriate positions in GRP_VEC
                                sapply(
 			              X = GRP_PATTERNS,
-				      FUN = function(PATTERN){
-				                              PATTERN_COLS <- grep(
-					                                           pattern = PATTERN,
+				      FUN = function(GRP_PATTERN){
+				                                  GRP_COLS <- grep(
+					                                           pattern = GRP_PATTERN,
 					                                           x = colnames(DATA)
 					                                           )
-					                      # <<- to change global GRP_VEC variable
-					                      GRP_VEC[PATTERN_COLS] <<- PATTERN
-					                      }
+					                          # <<- to change global GRP_VEC variable
+					                          GRP_VEC[GRP_COLS] <<- GRP_PATTERN
+					                          }
 			              )
 
                                return(GRP_VEC)

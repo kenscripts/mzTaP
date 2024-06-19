@@ -2,7 +2,7 @@
 #'
 #' Replaces MVs absent in all group samples with 0
 #'
-#' @param MV_DF Dataframe with missing values
+#' @param MV_DF Dataframe with missing values, where rows are mass features and columns are samples
 #' @param GRP_PATTERNS Patterns to identify group columns
 #' @return Dataframe with missing values replaced by zeros in group columns
 #' @export
@@ -49,7 +49,7 @@ groupMVs_2_zero <- function(
 #'
 #' Replaces MVs in group with the minimum value of group
 #'
-#' @param MV_DF Dataframe with missing values
+#' @param MV_DF Dataframe with missing values, where rows are mass features and columns are samples
 #' @param GRP_PATTERNS Patterns to identify group columns
 #' @return Dataframe with missing values replaced by group minimum
 #' @export

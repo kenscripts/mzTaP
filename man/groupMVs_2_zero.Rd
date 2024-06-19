@@ -7,7 +7,7 @@
 groupMVs_2_zero(MV_DF, GRP_PATTERNS)
 }
 \arguments{
-\item{MV_DF}{Dataframe with missing values}
+\item{MV_DF}{Dataframe with missing values, where rows are mass features and columns are samples}
 
 \item{GRP_PATTERNS}{Patterns to identify group columns}
 }

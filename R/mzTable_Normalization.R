@@ -1,3 +1,11 @@
+#' get_groupRLA
+#'
+#' Get relative log abundances of mass features compared to mass feature median.
+#'
+#' @param DATA Dataframe, where rows are mass feaures and columns are samples
+#' @param GRP_PATTERNS Patterns to identify sample groups
+#' @return Dataframe with relative log abundances of mass features
+#' @export
 get_groupRLA <- function(
 	 		 DATA,
 			 GRP_PATTERNS
@@ -43,11 +51,20 @@ get_groupRLA <- function(
 		           }
 
 
+#' rowwise_pw_test
+#'
+#' Perform pairwise statistical test between groups.
+#'
+#' @param DATA Dataframe, where rows are mass feaures and columns are samples
+#' @param GRP_VEC Vector of sample group names
+#' @param TEST_NAME String of R function to perform pairwise test (e.g. t.test, kw.test)
+#' @param PAIRED Boolean, if paired test then set to True (Default = False)
+#' @return Dataframe with relative log abundances of mass features
 rowwise_pw_test  <- function(
 			     DATA,
 			     GRP_VEC,
 			     TEST_NAME,
-			     PAIRED
+			     PAIRED = False
 			     ){
 			       # initialize a vector to store p-values
 			       TEST.PVALS <- numeric(

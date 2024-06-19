@@ -15,7 +15,5 @@ get_mf_noiseInfo(DATA, GRP_PATTERNS)
 Dataframe with information on mass feature noisiness.
 }
 \description{
-Determine the prevalence of each mass feature in sample groups.
-If mass feature is not conserved in any sample group (detected in all replicates of sample group) then it is considered noisy.
-If mass feature is missing in any sample group replicates then it's considered group noisy.
+Determine the prevalence of each mass feature in sample groups. If mass feature is not conserved in any sample group (detected in all replicates of sample group) then it is considered noisy. If mass feature is missing in any sample group replicates then it's considered group noisy.
 }
