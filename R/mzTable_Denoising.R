@@ -175,75 +175,99 @@ get_mf_noiseInfo <- function(
 		             DATA,
 			     GRP_PATTERNS
         		     ){
-                               # replace MVs with group min
-                               NOISY_LIST <- lapply(
-                                                    X = GRP_PATTERNS,
-                                                    FUN = function(GRP_PATTERN){
-                                                                                # Identify columns matching the group pattern
-                                                                                GRP_COLS <- grep(
-        				                                                         pattern = GRP_PATTERN,
-        						                                         x = colnames(DATA)
-        						                                         )
+                               # get mf prevalence in sample groups
+                               PREVALENCE_LIST <- lapply(
+                                                         X = GRP_PATTERNS,
+                                                         FUN = function(GRP_PATTERN){
+                                                                                     # Identify columns matching the group pattern
+                                                                                     GRP_COLS <- grep(
+        				                                                              pattern = GRP_PATTERN,
+        						                                              x = colnames(DATA)
+        						                                              )
         
-                                                                                # Get group data
-                                                                                GRP_DATA <- DATA[, GRP_COLS]
+                                                                                     # Get group data
+                                                                                     GRP_DATA <- DATA[, GRP_COLS]
 
-                                                                                # Get prevalence of mf in group
-                                                                                GRP_PREVALENCE <- apply(
-        						                                                X = GRP_DATA,
-        						                                                MAR = 1,
-          						                                                FUN = function(X){
-								                                                          # number of group samples with feature
-								                                                          SAMPLE_COUNT <- sum(X > 0)
+                                                                                     # Get prevalence of mf in group
+                                                                                     GRP_PREVALENCE <- apply(
+        						                                                     X = GRP_DATA,
+        						                                                     MAR = 1,
+          						                                                     FUN = function(X){
+								                                                               # number of group samples with feature
+								                                                               SAMPLE_COUNT <- sum(X > 0)
  
- 								                                                          # total number of group samples
- 								                                                          TOTAL_SAMPLES <- length(colnames(GRP_DATA))
+ 								                                                               # total number of group samples
+ 								                                                               TOTAL_SAMPLES <- length(colnames(GRP_DATA))
  
-								                                                          # prevalence of feature in group
-								                                                          MF_PREVALENCE <- SAMPLE_COUNT / TOTAL_SAMPLES
+								                                                               # prevalence of feature in group
+								                                                               MF_PREVALENCE <- SAMPLE_COUNT / TOTAL_SAMPLES
 
-								                                                          return(MF_PREVALENCE)
-							                                                                  }
+								                                                               return(MF_PREVALENCE)
+							                                                                       }
+          						                                                     )
 
-          						                                                )
-
-                                                                                return(GRP_PREVALENCE)
-					                                        }
-                                                     )
+                                                                                     return(GRP_PREVALENCE)
+					                                             }
+                                                         )
 
                                # add names
-                               names(NOISY_LIST) <- GRP_PATTERNS
+                               names(PREVALENCE_LIST) <- paste(
+							       "group",
+							       GRP_PATTERNS,
+							       sep = "."
+							       )
 
                                # convert to dataframe
-                               NOISY_DF <- as.data.frame(NOISY_LIST)
+                               PREVALENCE_DF <- as.data.frame(PREVALENCE_LIST)
 
-			       # check if feature is absent
-			       NOISY_DF$is_absent <- apply(
-				                           X = NOISY_DF,
-				                           MAR = 1,
-				                           FUN = function(X) all(
-				                                                 X == 0
-				                                                 )
-				                           )
+			       # get mf noisiness
+			       NOISY_DF <- apply(
+				                 X = PREVALENCE_DF,
+				                 MAR = 1,
+				                 FUN = function(X){
+			                                           # check if feature is absent
+						                   IS_ABSENT <- all(
+				                                                    X == 0
+				                                                    )
 
-		 	       # check to see if feature is conserved in any group
-			       # group-specific features should be present in all replicates
-			       NOISY_DF$is_noisy <- apply(
-				                          X = NOISY_DF,
-				                          MAR = 1,
-				                          FUN = function(X) !any(
-				                                                 X == 1.0
-				                                                 )
-				                          )
+		 	                                           # check to see if feature is conserved in any group
+			                                           # group-specific features should be present in all replicates
+				                                   IS_NOISY <- !any(
+				                                                    X == 1.0
+				                                                    )
 
-			       # check to see if feature is noisy in any group (not absent and not conserved in any group)
-			       NOISY_DF$is_grp_noisy <- apply(
-				                              X = NOISY_DF,
-				                              MAR = 1,
-				                              FUN = function(X) any(
-										    X > 0 & X < 1.0
-										    )
-				                              )
+			                                           # check to see if feature is noisy in any group (not absent and not conserved in any group)
+				                                   IS_GRP_NOISY <- any(
+										       X > 0 & X < 1.0
+										       )
+                                                                   return(
+									  c(
+									    IS_ABSENT,
+									    IS_NOISY,
+									    IS_GRP_NOISY
+									    )
+									  )
+							           }
+				                 ) %>%
+			                   # apply puts samples in x-dim and features in y-dim
+                                           # need to transpose
+			                   t()
 					       
-                               return(NOISY_DF)
+                               # add colnames
+                               colnames(NOISY_DF) <- c(
+                                                       "is_absent",
+                                                       "is_noisy",
+                                                       "is_grpNoisy"
+                                                       )
+
+			       # merge output
+                               MF_NOISE_DF <- merge(
+						    x = PREVALENCE_DF,
+						    y = NOISY_DF,
+						    by = 0,
+						    all = TRUE
+						    ) %>%
+			                      column_to_rownames(var = "Row.names")
+
+                               return(MF_NOISE_DF)
                                }
