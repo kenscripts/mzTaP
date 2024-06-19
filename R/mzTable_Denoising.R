@@ -260,14 +260,12 @@ get_mf_noiseInfo <- function(
                                                        "is_grpNoisy"
                                                        )
 
-			       # merge output
-                               MF_NOISE_DF <- merge(
-						    x = PREVALENCE_DF,
-						    y = NOISY_DF,
-						    by = 0,
-						    all = TRUE
-						    ) %>%
-			                      column_to_rownames(var = "Row.names")
+			       # combine output
+			       # use cbind to maintain row order
+                               MF_NOISE_DF <- cbind(
+						    PREVALENCE_DF,
+						    NOISY_DF
+						    )
 
                                return(MF_NOISE_DF)
                                }
