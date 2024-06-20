@@ -1,6 +1,6 @@
 #' groupMVs_2_zero
 #'
-#' Replaces MVs absent in all group samples with 0
+#' Replaces MVs present in all samples of a group with 0
 #'
 #' @param MV_DF Dataframe with missing values, where rows are mass features and columns are samples
 #' @param GRP_PATTERNS Patterns to identify group columns
