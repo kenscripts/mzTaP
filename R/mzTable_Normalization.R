@@ -28,7 +28,7 @@ get_groupRLA <- function(
 						                             all_of(GRP_COLS)
 						                             )
 
-							  # get median group log for each feature
+							  # get relative log abundances for each group for each feature
 						          GRP_RLA <- apply(
 						                           X = GRP_DATA,
 						                           MAR = 1,
