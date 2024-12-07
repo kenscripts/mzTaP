@@ -15,5 +15,5 @@ groupMVs_2_zero(MV_DF, GRP_PATTERNS)
 Dataframe with missing values replaced by zeros in group columns
 }
 \description{
-Replaces MVs absent in all group samples with 0
+Replaces MVs present in all samples of a group with 0
 }
