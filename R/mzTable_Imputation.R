@@ -143,9 +143,10 @@ replaceMVs_with_groupMinFactor <- function(
 								                                                    X_MIN_FAC <- min(
         									                                                     X,
          									                                                     na.rm = TRUE
-        									                                                     ) * MIN_FACTOR
+        									                                                     ) * MIN_FACTOR %>%
+        									                                                 as.integer()
 
-								                                                    # replace row MVs with min
+								                                                    # replace row MVs with min factor
 								                                                    X[is.na(X)] <- X_MIN_FAC
 
 								                                                    return(X)
