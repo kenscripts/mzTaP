@@ -102,3 +102,63 @@ replaceMVs_with_groupMin <- function(
 
                                        return(MIN_DF)
                                        }
+
+
+#' replaceMVs_with_groupMinFactor
+#'
+#' Replaces MVs in group with a factor of the group minimum value
+#'
+#' @param MV_DF Dataframe with missing values, where rows are mass features and columns are samples
+#' @param GRP_PATTERNS Patterns to identify group columns
+#' @param  MIN_FACTOR Factor of minimum
+#' @return Dataframe with missing values replaced by group minimum factor
+#' @export
+replaceMVs_with_groupMinFraction <- function(
+		                          MV_DF,
+			             GRP_PATTERNS
+        			     ){
+                                       # Initialize output dataframe
+                                       MIN_DF <- MV_DF
+
+                                       # For each group, replace MVs with group min
+                                       sapply(
+                                              X = GRP_PATTERNS,
+                                              FUN = function(GRP_PATTERN){
+                                                                          # Identify columns matching the group pattern
+                                                                          GRP_COLS <- grep(
+        				                                                   pattern = GRP_PATTERN,
+        						                                   x = colnames(MV_DF)
+        						                                   )
+        
+                                                                          # Get group data
+                                                                          GRP_DATA <- MV_DF[, GRP_COLS]
+
+                                                                          # Generate imputed rows
+                                                                          MIN_ROWS <- apply(
+        						                                    X = GRP_DATA,
+        						                                    MAR = 1,
+          						                                    FUN = function(X){
+								                                              # find row min
+								                                              X_MIN_FAC <- min(
+        									                                               X,
+         									                                               na.rm = TRUE
+        									                                               ) * MIN_FACTOR
+
+								                                              # replace row MVs with min
+								                                              X[is.na(X)] <- X_MIN_FAC
+
+								                                              return(X)
+							                                                      }
+        						                                    ) %>%
+						                                      # apply puts samples in x-dim and features in y-dim
+						                                      # need to transpose
+					                                              t()
+
+                                                                          # replace values in output dataframe
+									  # <<- to change global MIN_DF variable
+                                                                          MIN_DF[, GRP_COLS] <<- MIN_ROWS
+					                                  }
+                                             )
+
+                                       return(MIN_DF)
+                                       }

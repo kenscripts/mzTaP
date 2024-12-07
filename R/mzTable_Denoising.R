@@ -123,7 +123,7 @@ subtract_blank_median <- function(
 						     value = TRUE
 						     )
 
-                                    # Calculate the median for each blank column
+                                    # Calculate the median intensity in blank columns for each feature
                                     BLANK_MED <- apply(
 						       X = DATA[,BLANK_COLS],
 						       MAR = 1, 
@@ -136,7 +136,7 @@ subtract_blank_median <- function(
 				    # copy dataframe for output
 				    DATA.DENOISE <- DATA
 
-                                    # Subtract the median of the corresponding blank column from each sample group column
+                                    # Subtract the median intensity in blanks from samples
 				    sapply(
 					   X = GRP_COLS,
 					   FUN = function(COL){
