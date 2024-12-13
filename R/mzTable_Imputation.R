@@ -104,63 +104,137 @@ replaceMVs_with_groupMin <- function(
                                        }
 
 
-#' replaceMVs_with_groupMinFactor
+#' replaceMVs_with_groupMinLessOne
 #'
-#' Replaces MVs in group with a factor of the group minimum value
+#' Replaces MVs in group with the minimum value - 1 of group
 #'
 #' @param MV_DF Dataframe with missing values, where rows are mass features and columns are samples
 #' @param GRP_PATTERNS Patterns to identify group columns
-#' @param  MIN_FACTOR Factor to multiply minimum with
-#' @return Dataframe with missing values replaced by group minimum factor
+#' @return Dataframe with missing values replaced by group minimum - 1
 #' @export
-replaceMVs_with_groupMinFactor <- function(
-		                           MV_DF,
-			                   MIN_FACTOR,
-			                   GRP_PATTERNS
-        			           ){
-                                             # Initialize output dataframe
-                                             MIN_DF <- MV_DF
-      
-                                             # For each group, replace MVs with group min
-                                             sapply(
-                                                    X = GRP_PATTERNS,
-                                                    FUN = function(GRP_PATTERN){
-                                                                                # Identify columns matching the group pattern
-                                                                                GRP_COLS <- grep(
-        				                                                         pattern = GRP_PATTERN,
-        						                                         x = colnames(MV_DF)
-        						                                         )
+replaceMVs_with_groupMinLessOne <- function(
+		                            MV_DF,
+			                    GRP_PATTERNS
+        			            ){
+                                              # Initialize output dataframe
+                                              MIN_DF <- MV_DF
+
+                                              # For each group, replace MVs with group min
+                                              sapply(
+                                                     X = GRP_PATTERNS,
+                                                     FUN = function(GRP_PATTERN){
+                                                                                 # Identify columns matching the group pattern
+                                                                                 GRP_COLS <- grep(
+        				                                                          pattern = GRP_PATTERN,
+        						                                          x = colnames(MV_DF)
+        						                                          )
         
-                                                                                # Get group data
-                                                                                GRP_DATA <- MV_DF[, GRP_COLS]
+                                                                                 # Get group data
+                                                                                 GRP_DATA <- MV_DF[, GRP_COLS]
 
-                                                                                # Generate imputed rows
-                                                                                MIN_ROWS <- apply(
-        						                                          X = GRP_DATA,
-        						                                          MAR = 1,
-          						                                          FUN = function(X){
-								                                                    # find row min
-								                                                    X_MIN_FAC <- min(
-        									                                                     X,
-         									                                                     na.rm = TRUE
-        									                                                     ) * MIN_FACTOR %>%
-        									                                                 as.integer()
+                                                                                 # Generate imputed rows
+                                                                                 MIN_ROWS <- apply(
+        						                                           X = GRP_DATA,
+        						                                           MAR = 1,
+          						                                           FUN = function(X){
+								                                                     # find row min
+								                                                     X_MIN <- min(
+        									                                                  X,
+         									                                                  na.rm = TRUE
+        									                                                  )
 
-								                                                    # replace row MVs with min factor
-								                                                    X[is.na(X)] <- X_MIN_FAC
+								                                                     # replace row MVs with min - 1
+								                                                     X[is.na(X)] <- X_MIN - 1
 
-								                                                    return(X)
-							                                                            }
-        						                                          ) %>%
-						                                            # apply puts samples in x-dim and features in y-dim
-						                                            # need to transpose
-					                                                    t()
+								                                                     return(X)
+							                                                             }
+        						                                           ) %>%
+						                                             # apply puts samples in x-dim and features in y-dim
+						                                             # need to transpose
+					                                                     t()
 
-                                                                                # replace values in output dataframe
-									        # <<- to change global MIN_DF variable
-                                                                                MIN_DF[, GRP_COLS] <<- MIN_ROWS
-					                                        }
-                                                   )
+                                                                                 # replace values in output dataframe
+									         # <<- to change global MIN_DF variable
+                                                                                 MIN_DF[, GRP_COLS] <<- MIN_ROWS
+					                                         }
+                                                    )
 
-                                             return(MIN_DF)
-                                             }
+                                              return(MIN_DF)
+                                              }
+
+
+#' replaceZero_with_groupMinLessOne
+#'
+#' Replaces zero counts in group with the minimum value - 1 of group
+#'
+#' @param MV_DF Dataframe, where rows are mass features and columns are samples
+#' @param GRP_PATTERNS Patterns to identify group columns
+#' @return Dataframe with zero counts replaced by group minimum - 1
+#' @export
+replaceZero_with_groupMinLessOne <- function(
+		                             MV_DF,
+			                     GRP_PATTERNS
+        			             ){
+                                               # Initialize output dataframe
+                                               MIN_DF <- MV_DF
+
+                                               # For each group, replace MVs with group min
+                                               sapply(
+                                                      X = GRP_PATTERNS,
+                                                      FUN = function(GRP_PATTERN){
+                                                                                  # Identify columns matching the group pattern
+                                                                                  GRP_COLS <- grep(
+        				                                                           pattern = GRP_PATTERN,
+        						                                           x = colnames(MV_DF)
+        						                                           )
+        
+                                                                                  # Get group data
+                                                                                  GRP_DATA <- MV_DF[, GRP_COLS]
+
+                                                                                  # Generate imputed rows
+                                                                                  MIN_ROWS <- apply(
+        						                                            X = GRP_DATA,
+        						                                            MAR = 1,
+          						                                            FUN = function(X){
+								                                                      # replace zero with NA
+								                                                      X[X == 0] <- NA
+
+													              # handle grp features that are absent
+								                                                      if (all(is.na(X))) {
+													                                  MIN_VAL <- 0
+														      } else {
+								                                                              # find row min
+								                                                              X_MIN <- ifelse(
+								                                                                              test = X %>%
+								                                                                                     na.omit() %>%
+								                                                                                     length() > 1,
+								                                                                              yes = min(
+        									                                                                        X,
+         									                                                                        na.rm = TRUE
+        									                                                                        ),
+								                                                                              # when theres only 1 value
+								                                                                              # min() doesn't work with 1 value
+								                                                                              no = na.omit(X)
+								                                                                              )
+
+								                                                              # replace NA with min - 1
+								                                                              MIN_VAL <- X_MIN - 1
+							                                                                      }
+
+														      X[is.na(X)] <- MIN_VAL
+
+														      return(X)
+												                      }
+        						                                            ) %>%
+						                                              # apply puts samples in x-dim and features in y-dim
+						                                              # need to transpose
+					                                                      t()
+
+                                                                                  # replace values in output dataframe
+									          # <<- to change global MIN_DF variable
+                                                                                  MIN_DF[, GRP_COLS] <<- MIN_ROWS
+					                                          }
+                                                     )
+
+                                               return(MIN_DF)
+                                               }

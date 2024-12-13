@@ -4,10 +4,10 @@
 \alias{get_mf_noiseInfo}
 \title{get_mf_noiseInfo}
 \usage{
-get_mf_noiseInfo(DATA, GRP_PATTERNS)
+get_mf_noiseInfo(MF_DF, GRP_PATTERNS)
 }
 \arguments{
-\item{DATA}{Dataframe, where rows are mass feaures and columns are samples}
+\item{MF_DF}{Mass feature dataframe, where rows are mass feaures and columns are samples}
 
 \item{GRP_PATTERNS}{Patterns to identify sample groups}
 }

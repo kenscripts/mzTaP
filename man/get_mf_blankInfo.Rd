@@ -4,10 +4,10 @@
 \alias{get_mf_blankInfo}
 \title{get_mf_blankInfo}
 \usage{
-get_mf_blankInfo(DATA, BLANK_PATTERN)
+get_mf_blankInfo(MF_DF, BLANK_PATTERN)
 }
 \arguments{
-\item{DATA}{Dataframe, where rows are mass feaures and columns are samples}
+\item{MF_DF}{Dataframe, where rows are mass feaures and columns are samples}
 
 \item{BLANK_PATTERN}{Pattern to identify blank samples}
 }
