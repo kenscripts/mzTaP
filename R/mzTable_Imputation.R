@@ -204,18 +204,23 @@ replaceZero_with_groupMinLessOne <- function(
 													                                  MIN_VAL <- 0
 														      } else {
 								                                                              # find row min
-								                                                              X_MIN <- ifelse(
-								                                                                              test = X %>%
-								                                                                                     na.omit() %>%
-								                                                                                     length() > 1,
-								                                                                              yes = min(
-        									                                                                        X,
-         									                                                                        na.rm = TRUE
-        									                                                                        ),
-								                                                                              # when theres only 1 value
-								                                                                              # min() doesn't work with 1 value
-								                                                                              no = na.omit(X)
-								                                                                              )
+								                                                              X_MIN <- min(
+        									                                                           X,
+         									                                                           na.rm = TRUE
+        									                                                           )
+								                                                              # find row min
+								                                                              #X_MIN <- ifelse(
+								                                                              #                test = X %>%
+								                                                              #                       na.omit() %>%
+								                                                              #                       length() > 1,
+								                                                              #                yes = min(
+        									                                              #                          X,
+         									                                              #                          na.rm = TRUE
+        									                                              #                          ),
+								                                                              #                # when theres only 1 value
+								                                                              #                # min() doesn't work with 1 value
+								                                                              #                no = na.omit(X)
+								                                                              #                )
 
 								                                                              # replace NA with min - 1
 								                                                              MIN_VAL <- X_MIN - 1
