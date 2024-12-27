@@ -97,12 +97,12 @@ get_mf_blankInfo <- function(
 
 #' subtract_blank_median
 #'
-#' For each mass feature, subtract median value in blanks from each sample. Uses BLANK_PATTERN to identify blank columns. Uses GRP_PATTERN to identify sample columns.
+#' For each mass feature, subtract median value in blanks from each sample. Uses BLANK_PATTERN to identify blank columns. Uses GRP_PATTERN to identify sample columns. Blank median is rounded up to nearest integer
 #'
 #' @param DATA Dataframe, where rows are mass feaures and columns are samples
 #' @param BLANK_PATTERN Pattern to identify blank 
-#' @param GRP_PATTERN Pattern to identify sample group
-#' @return Dataframe with mass feature information from blanks
+#' @param GRP_PATTERN Pattern to identify experimental samples
+#' @return Dataframe with mass feature intensities subtracted by blank median
 #' @export
 subtract_blank_median <- function(
 				  DATA,
@@ -130,7 +130,9 @@ subtract_blank_median <- function(
 						       FUN = function(X) median(
 						                                X,
 						                                na.rm = TRUE
-						                                )
+						                                ) %>%
+						                         # round up to nearest integer
+						                         ceiling()
 						       )
 
 				    # copy dataframe for output

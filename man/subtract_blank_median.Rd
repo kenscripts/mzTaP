@@ -11,11 +11,11 @@ subtract_blank_median(DATA, BLANK_PATTERN, GRP_PATTERN)
 
 \item{BLANK_PATTERN}{Pattern to identify blank}
 
-\item{GRP_PATTERN}{Pattern to identify sample group}
+\item{GRP_PATTERN}{Pattern to identify experimental samples}
 }
 \value{
-Dataframe with mass feature information from blanks
+Dataframe with mass feature intensities subtracted by blank median
 }
 \description{
-For each mass feature, subtract median value in blanks from each sample. Uses BLANK_PATTERN to identify blank columns. Uses GRP_PATTERN to identify sample columns.
+For each mass feature, subtract median value in blanks from each sample. Uses BLANK_PATTERN to identify blank columns. Uses GRP_PATTERN to identify sample columns. Blank median is rounded up to nearest integer
 }
