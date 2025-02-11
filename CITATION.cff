@@ -13,3 +13,7 @@ authors:
     email: ikennethacosta@gmail.com
     affiliation: Rutgers University
     orcid: 'https://orcid.org/0000-0001-5309-2760'
+repository-code: 'https://github.com/kenscripts/mzTaP'
+abstract: >-
+  Functions to help impute, denoise, and normalize a mass
+  feature table.
