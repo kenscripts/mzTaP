@@ -1,0 +1,15 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: mzTaP
+message: >-
+  Functions to help impute, denoise, and normalize a mass
+  feature table.
+type: software
+authors:
+  - given-names: Kenneth
+    family-names: Acosta
+    email: ikennethacosta@gmail.com
+    affiliation: Rutgers University
+    orcid: 'https://orcid.org/0000-0001-5309-2760'
