@@ -17,3 +17,5 @@ repository-code: 'https://github.com/kenscripts/mzTaP'
 abstract: >-
   Functions to help impute, denoise, and normalize a mass
   feature table.
+commit: 403eaac047c2bf758c19965f93625bbf5fbeccfe
+date-released: '2025-02-11'
